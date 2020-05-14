@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+    <style>
+        h1,div{
+            align-content: center;
+            text-align: center;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+    <body>
+        {% with messages=get_flashed_messages() %}
+            {% if messages %}
+            <div>
+                <p>{{ messages }}</p>
+            </div>
+            {% endif %}
+        {% endwith %}
+        <form action = "{{ url_for('login') }}" method = "POST">
+            <h1>欢迎登录</h1>
+            <div>
+            账号
+            <input type="text" name = "username"/><br>
+            密码
+            <input name="password" type="password"/><br>
+            <button type="submit">登录</button><br>
+            </div>
+        </form>
+        <div style="text-align: center">
+            <a href="http://127.0.0.1:5000/index">
+                <button>若无账号_请注册</button>
+            </a>
+        </div>
+   </body>
+</html>
