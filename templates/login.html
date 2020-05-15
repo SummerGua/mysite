@@ -4,13 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>登录</title>
-    <style>
-        h1,div{
-            align-content: center;
-            text-align: center;
-            margin: 0 auto;
-        }
-    </style>
+    <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
     <body>
         {% with messages=get_flashed_messages() %}
@@ -22,18 +18,16 @@
         {% endwith %}
         <form action = "{{ url_for('login') }}" method = "POST">
             <h1>欢迎登录</h1>
-            <div>
-            账号
-            <input type="text" name = "username"/><br>
-            密码
-            <input name="password" type="password"/><br>
-            <button type="submit">登录</button><br>
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username" name ="username" placeholder="username">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" class="form-control" name="password" id="password" placeholder="password">
             </div>
         </form>
-        <div style="text-align: center">
-            <a href="http://127.0.0.1:5000/index">
-                <button>若无账号_请注册</button>
-            </a>
-        </div>
+        <button type="submit" value="submit" class="btn btn-primary form-control">登录</button>
+            <a href="{{ url_for('index') }}"><button class="btn btn-defalut form-control">若无账号_请注册</button></a>
    </body>
 </html>

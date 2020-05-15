@@ -62,7 +62,7 @@ def adduser():
         elif 2 < len(username.strip()) < 11 and 2 < len(password) < 13 and password == password2:
             userinfo = User()
             userinfo.username = username
-            password=generate_password_hash(password)
+            password = generate_password_hash(password)
             userinfo.password = password
             db.session.add(userinfo)
             db.session.commit()
@@ -81,7 +81,7 @@ def login():
         password = request.form.get('password')
         u = User.query.filter(User.username == username).first()
         if u:  # 如果用户存在
-            flag = check_password_hash(u.password,password)
+            flag = check_password_hash(u.password, password)
             if flag:  # 登录成功
                 login_user(u)
                 # return render_template('userhome.html', username=username)
@@ -100,9 +100,10 @@ def go():
     return render_template('login.html')
 
 
-@app.route('/userhome')
+# @app.route('/userhome/<username>')
 @login_required
-def userhome():
+def userhome(username):
+    # user = User.query.filter(username == username).first()
     return render_template('userhome.html')
 
 
