@@ -1,27 +1,3 @@
-{#{% extends "暂时用不上的base.html"%}#}
-{#{% block content %} <!--具体内容-->#}
-{#{% import "bootstrap/wtf.html" as wtf %} <!--导入bootstrap模板 -->#}
-{#<div class="container">#}
-{# <div class="row"></div>#}
-{# <div class="row">#}
-{##}
-{#  <div>#}
-{#   <div class="page-header">#}
-{#    <h1>欢迎您注册</h1>#}
-{#   </div>#}
-{#   {% for message in get_flashed_messages() %}#}
-{#   <div class="alert alert-warning">#}
-{#    <button type="button" class="close" data-dismiss="alter">×</button>#}
-{#    {{message}}#}
-{#   </div>#}
-{#   {% endfor %}#}
-{#   {{ wtf.quick_form(form)}} <!--创建表单-->#}
-{#  </div>#}
-{# </div>#}
-{#</div>#}
-{#{% endblock %}#}
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -50,6 +26,10 @@
     <div class="form-group">
         <label for="password">密码</label>
         <input type="password" class="form-control" name="password" id="password" placeholder="password">
+    </div>
+    <div class="form-group">
+        <label for="password">请再次输入密码</label>
+        <input type="password" class="form-control" name="password2" id="password" placeholder="password">
     </div>
     <button type="submit" value="submit" class="btn btn-primary form-control">注册</button>
 </form>
