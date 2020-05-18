@@ -27,8 +27,9 @@ class User(UserMixin, db.Model):
 class Health(db.Model):
     __tablename__ = 'health'
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
-    hospitalname = db.Column(db.String(40))
+    hospitalname = db.Column(db.String(40), nullable=False)
     date = db.Column(db.Date, nullable=False)
+    details = db.Column(db.String(200),nullable=False)
     user_name = db.Column(db.VARCHAR(20), db.ForeignKey('account.username'))
 
 
@@ -74,13 +75,19 @@ def update():
     if request.method == 'POST':
         hospital_name = request.form.get('hospitalname')
         date = request.form.get('date')
-        healthinfo = Health()
-        healthinfo.hospitalname = hospital_name
-        healthinfo.date = date
-        healthinfo.user_name = current_user.username
-        db.session.add(healthinfo)
-        db.session.commit()
-        return redirect(url_for('userhome',username=current_user.username))
+        details = request.form.get('details')
+        if len(details) > 1 and len(hospital_name) > 2:
+            healthinfo = Health()
+            healthinfo.hospitalname = hospital_name
+            healthinfo.date = date
+            healthinfo.user_name = current_user.username
+            healthinfo.details = details
+            db.session.add(healthinfo)
+            db.session.commit()
+            return redirect(url_for('userhome',username=current_user.username))
+        else:
+            flash("输入不可为空!")
+            return redirect(url_for('userhome', username=current_user.username))
 
 
 @app.route('/adduser', methods=['POST', 'GET'])
@@ -91,7 +98,6 @@ def adduser():
         password = request.form.get('password')
         password2 = request.form.get('password2')
         u = User.query.filter(User.username == username).first()
-        print('??' + u)
         if u:
             flash('用户名已存在，请重新输入！')
             return redirect(url_for('index'))

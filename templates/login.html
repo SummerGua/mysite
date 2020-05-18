@@ -9,15 +9,15 @@
     <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
     <body>
-        {% with messages=get_flashed_messages() %}
+        <form action = "{{ url_for('login') }}" method = "POST">
+            <h1 align="center">欢迎登录健康管理系统！</h1>
+            {% with messages=get_flashed_messages() %}
             {% if messages %}
             <div>
                 <p>{{ messages }}</p>
             </div>
             {% endif %}
         {% endwith %}
-        <form action = "{{ url_for('login') }}" method = "POST">
-            <h1 align="center">欢迎登录</h1>
             <div class="form-group">
                 <label for="username">用户名</label>
                 <input type="text" class="form-control" id="username" name ="username" placeholder="username">
