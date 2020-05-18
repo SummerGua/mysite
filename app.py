@@ -1,16 +1,10 @@
+from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_login import login_required, LoginManager, login_user, UserMixin
+from flask_login import login_required, LoginManager, login_user, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
 from flask_bootstrap import Bootstrap
 from werkzeug.security import check_password_hash, generate_password_hash
-
-# from forms import *
-# from flask_wtf import FlaskForm
-# from sqlalchemy import create_engine
-# from sqlalchemy.orm import sessionmaker
-# from wtforms import StringField, SubmitField, PasswordField, BooleanField
-# from wtforms.validators import DataRequired, Email, Length, EqualTo
-
+from werkzeug.urls import url_parse
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -30,22 +24,63 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String, nullable=False)
 
 
-class health(db.Model):
+class Health(db.Model):
     __tablename__ = 'health'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     hospitalname = db.Column(db.String(40))
-    date = db.Column(db.Date, nullable=False, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('account.userid'))
+    date = db.Column(db.Date, nullable=False)
+    user_name = db.Column(db.VARCHAR(20), db.ForeignKey('account.username'))
+
+
+@app.before_request
+def before_request():
+    if current_user.is_authenticated:
+        current_user.last_seen = datetime.utcnow()
+        db.session.commit()
 
 
 @login_manager.user_loader
-def load_user(id):
-    return User.query.get(id)
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 @app.route('/index')
 @app.route('/')  # route()函数是一个装饰器，它告诉应用程序哪个URL应该调用相关的函数。
 def index():  # '/ ' URL与hello_world()函数绑定。因此，当在浏览器中打开web服务器的主页时，将呈现该函数的输出。
     return render_template('index.html')
+
+
+@app.route('/go')  # 点击注册页面的登录会来到login.html
+def go():
+    return render_template('login.html')
+
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+
+@app.route('/userhome/<username>')
+@login_required
+def userhome(username):
+    userinfo = Health.query.filter(Health.user_name == username).all()
+    return render_template('userhome.html', info=userinfo)
+
+
+@app.route('/update', methods=['POST','GET'])
+@login_required
+def update():
+    if request.method == 'POST':
+        hospital_name = request.form.get('hospitalname')
+        date = request.form.get('date')
+        healthinfo = Health()
+        healthinfo.hospitalname = hospital_name
+        healthinfo.date = date
+        healthinfo.user_name = current_user.username
+        db.session.add(healthinfo)
+        db.session.commit()
+        return redirect(url_for('userhome',username=current_user.username))
 
 
 @app.route('/adduser', methods=['POST', 'GET'])
@@ -56,6 +91,7 @@ def adduser():
         password = request.form.get('password')
         password2 = request.form.get('password2')
         u = User.query.filter(User.username == username).first()
+        print('??' + u)
         if u:
             flash('用户名已存在，请重新输入！')
             return redirect(url_for('index'))
@@ -84,8 +120,10 @@ def login():
             flag = check_password_hash(u.password, password)
             if flag:  # 登录成功
                 login_user(u)
-                # return render_template('userhome.html', username=username)
-                return redirect(url_for('userhome'))
+                next_page = request.args.get('next')
+                if not next_page or url_parse(next_page).netloc != '':
+                    next_page = url_for('userhome', username=current_user.username)
+                return redirect(next_page)
             else:  # 密码错误
                 flash('密码错误')
                 return redirect(url_for('go'))
@@ -95,18 +133,6 @@ def login():
     return redirect(url_for('go'))
 
 
-@app.route('/go')  # 点击注册页面的登录会来到login.html
-def go():
-    return render_template('login.html')
-
-
-# @app.route('/userhome/<username>')
-@login_required
-def userhome(username):
-    # user = User.query.filter(username == username).first()
-    return render_template('userhome.html')
-
-
-# db.create_all()
+# db.create_all() # 用数据模型创建数据库时使用
 if __name__ == '__main__':
     app.run(debug=True)

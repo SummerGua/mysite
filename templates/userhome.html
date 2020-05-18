@@ -3,9 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <title>用户主页</title>
+    <style>
+        body{
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
-    <p>欢迎来到{{ user }}主页</p>
-{#    <form action=""></form>#}
+    <h1>欢迎来到{{ current_user.username }}的主页</h1>
+    {% for infos in info %}
+    <tr>
+        <td>医院：{{ infos.hospitalname }}</td>
+        <td>日期：{{ infos.date }}</td>
+    </tr><br>
+    {% endfor %}
+    <p>您可以在表格中增加您的就诊记录：</p>
+    <form action = "{{ url_for('update') }}" method = "POST">
+        <div class="form-group">
+            <label>
+                医院名：
+                <input type="text" class="form-control" name ="hospitalname" placeholder="医院名">
+            </label>
+        </div>
+        <div class="form-group">
+            <label>
+                日期：
+                <input type="date" class="form-control" name="date" placeholder="日期">
+            </label>
+        </div>
+        <button type="submit" value="submit">提交</button>
+    </form>
 </body>
 </html>
