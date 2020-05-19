@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" >
     <title>用户主页</title>
     <style>
         body{
             text-align: center;
-            font-family:"Helvetica Neue","Luxi Sans","DejaVu Sans",Tahoma,"Hiragino Sans GB","Microsoft Yahei",sans-serif;
         }
         button{
             background-color: #4CAF50; /* Green */
@@ -49,7 +48,7 @@
         <td>就诊情况：{{ infos.details }}</td>
     </tr><br>
     {% endfor %}
-    <p>您可以在表格中增加您的就诊记录：</p>
+    <p style="font-family: 华光粗圆_CNKI">您可以在表格中增加您的就诊记录：</p>
     {% with messages=get_flashed_messages() %}
     {% if messages %}
         <div>
@@ -63,22 +62,39 @@
         <div>
             <label>
                 医院名：<br>
-                <input type="text" name ="hospitalname" placeholder="医院名">
+                <input type="text" id="hosname" name ="hospitalname" placeholder="医院名">
             </label>
         </div>
         <div>
             <label>
                 就诊日期：<br>
-                <input type="date" name="date" placeholder="日期">
+                <input type="date" name="date" id="date" placeholder="日期">
             </label>
         </div><br>
         <div>
             <label>
                 就诊情况：<br>
-                <input style="height: 60px" type="text" name="details">
+                <input id="details" style="height: 60px" type="text" name="details">
             </label>
         </div><br>
-        <button type="submit" value="submit">提交</button>
+        <input type="button" onclick="username()" value="检查">
+        <button onclick="username()" type="submit" value="submit">提交</button>
     </form>
+    <script type="text/javascript">
+        function username() {
+            const hosname = document.getElementById('hosname').value;
+            const details = document.getElementById('details').value;
+            const date = document.getElementById('date').value;
+            if(hosname.length===0){
+                alert("请填写医院名");
+            }if(details.length===0){
+                alert("请填写详情");
+            }if(date.length===0){
+                alert("请填写日期");
+            }else{
+                alert("可以提交啦");
+            }
+        }
+    </script>
 </body>
 </html>

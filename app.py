@@ -76,18 +76,14 @@ def update():
         hospital_name = request.form.get('hospitalname')
         date = request.form.get('date')
         details = request.form.get('details')
-        if len(details) > 1 and len(hospital_name) > 2:
-            healthinfo = Health()
-            healthinfo.hospitalname = hospital_name
-            healthinfo.date = date
-            healthinfo.user_name = current_user.username
-            healthinfo.details = details
-            db.session.add(healthinfo)
-            db.session.commit()
-            return redirect(url_for('userhome',username=current_user.username))
-        else:
-            flash("输入不可为空!")
-            return redirect(url_for('userhome', username=current_user.username))
+        healthinfo = Health()
+        healthinfo.hospitalname = hospital_name
+        healthinfo.date = date
+        healthinfo.user_name = current_user.username
+        healthinfo.details = details
+        db.session.add(healthinfo)
+        db.session.commit()
+        return redirect(url_for('userhome',username=current_user.username))
 
 
 @app.route('/adduser', methods=['POST', 'GET'])
