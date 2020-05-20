@@ -7,16 +7,9 @@
         body{
             text-align: center;
         }
-        button{
-            background-color: #4CAF50; /* Green */
-            border: none;
+        #inp{
+            background-color: #4CAF50;
             color: white;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            border-radius:3px;
         }
         input{
             width: 300px;
@@ -27,42 +20,27 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        button{
-            width: 300px;
-            background-color: #4CAF50;
-            color: white;
-            padding: 14px 20px;
-            margin: 8px 0;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
     </style>
 </head>
 <body>
     <h1>欢迎回来，{{ current_user.username }}</h1>
+    <a href="{{ url_for('logout') }}">点我退出登录</a><br><br>
     {% for infos in info %}
     <tr>
         <td>医院：{{ infos.hospitalname }}</td>
         <td>日期：{{ infos.date }}</td>
-        <td>就诊情况：{{ infos.details }}</td>
+        <td>就诊情况：{{ infos.details }}<a onclick="delOK()" href="{{ url_for("delete_info", info_id=infos.id) }}">删除</a></td>
     </tr><br>
     {% endfor %}
+    <br>
+    <a href="{{ url_for('rubbish',username=current_user.username) }}">查看回收站</a>
     <p style="font-family: 华光粗圆_CNKI">您可以在表格中增加您的就诊记录：</p>
-    {% with messages=get_flashed_messages() %}
-    {% if messages %}
-        <div>
-            {% for message in messages %}
-                <p style="color: red">{{ message }}</p>
-            {% endfor %}
-        </div>
-    {% endif %}
-    {% endwith %}
-    <form action = "{{ url_for('update') }}" method = "POST">
+    <form action = "{{ url_for('update') }}" method = "POST" name="form">
         <div>
             <label>
                 医院名：<br>
                 <input type="text" id="hosname" name ="hospitalname" placeholder="医院名">
+                <span style="color: red" id="span"></span>
             </label>
         </div>
         <div>
@@ -76,24 +54,40 @@
                 就诊情况：<br>
                 <input id="details" style="height: 60px" type="text" name="details">
             </label>
-        </div><br>
-        <input type="button" onclick="username()" value="检查">
-        <button onclick="username()" type="submit" value="submit">提交</button>
+        </div>
+        <input id="inp" type="button" onclick="check()" value="检查输入">
+        <div id="insert">
+            </div>
     </form>
     <script type="text/javascript">
-        function username() {
+        function check() {
             const hosname = document.getElementById('hosname').value;
             const details = document.getElementById('details').value;
             const date = document.getElementById('date').value;
-            if(hosname.length===0){
+            const but = document.getElementById('insert');
+            if (hosname.length === 0){
                 alert("请填写医院名");
-            }if(details.length===0){
+            }if (details.length===0){
                 alert("请填写详情");
-            }if(date.length===0){
+            }if (date.length===0){
                 alert("请填写日期");
-            }else{
+            }if (date.length!==0&&details.length!==0&&hosname!==0){
                 alert("可以提交啦");
+                but.innerHTML="<button " +
+                    "            style='width: 300px;" +
+                    "            background-color: #4CAF50" +
+                    "            color: white;" +
+                    "            padding: 14px 20px;" +
+                    "            margin: 8px 0;" +
+                    "            border: none;" +
+                    "            border-radius: 4px;" +
+                    "            cursor: pointer;' " +
+                    "            value=\"submit\" type=\"submit\">提交</button>";
+
             }
+        }
+        function delOK() {
+            alert("删除成功，您可以在回收站找到它们");
         }
     </script>
 </body>

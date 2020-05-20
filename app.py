@@ -29,7 +29,16 @@ class Health(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     hospitalname = db.Column(db.String(40), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    details = db.Column(db.String(200),nullable=False)
+    details = db.Column(db.String(200), nullable=False)
+    user_name = db.Column(db.VARCHAR(20), db.ForeignKey('account.username'))
+
+
+class Bin(db.Model):
+    __tablename__ = 'bin'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    hospitalname = db.Column(db.String(40), nullable=False)
+    date = db.Column(db.Date, nullable=False)
+    details = db.Column(db.String(200), nullable=False)
     user_name = db.Column(db.VARCHAR(20), db.ForeignKey('account.username'))
 
 
@@ -62,6 +71,62 @@ def logout():
     return redirect(url_for('index'))
 
 
+@app.route('/delete_info/<info_id>')
+@login_required
+def delete_info(info_id):
+    to_delete_info = Health.query.get(info_id)
+    to_bin_info = Health.query.filter(Health.id == info_id).first()
+    if to_delete_info:
+        bin_info = Bin()
+        bin_info.user_name = to_bin_info.user_name
+        bin_info.hospitalname = to_bin_info.hospitalname
+        bin_info.date = to_bin_info.date
+        bin_info.details = to_bin_info.details
+        bin_info.id = to_bin_info.id
+        db.session.add(bin_info)
+        db.session.commit()
+        db.session.delete(to_delete_info)
+        db.session.commit()
+        return redirect(url_for('userhome',username=current_user.username))
+
+
+@app.route('/delbin<info_id>')
+@login_required
+def delbin(info_id):
+    info = Bin.query.get(info_id)
+    if info:
+        db.session.delete(info)
+        db.session.commit()
+        return redirect(url_for('rubbish',username=current_user.username))
+
+
+@app.route('/recover/<info_id>')
+@login_required
+def recover(info_id):
+    info = Bin.query.get(info_id)
+    info2 = Bin.query.filter(Bin.id == info_id).first()
+    if info:
+        reinfo = Health()
+        reinfo.id = info2.id
+        reinfo.date = info2.date
+        reinfo.details = info2.details
+        reinfo.hospitalname = info2.hospitalname
+        reinfo.user_name = info.user_name
+        db.session.add(reinfo)
+        db.session.commit()
+        db.session.delete(info)
+        db.session.commit()
+        return redirect(url_for('rubbish', username=current_user.username))
+
+
+# 回收站页面
+@app.route('/rubbish/<username>')
+@login_required
+def rubbish(username):
+    userinfo = Bin.query.filter(Bin.user_name == username).all()
+    return render_template('rubbish.html', bin_info=userinfo)
+
+
 @app.route('/userhome/<username>')
 @login_required
 def userhome(username):
@@ -69,7 +134,7 @@ def userhome(username):
     return render_template('userhome.html', info=userinfo)
 
 
-@app.route('/update', methods=['POST','GET'])
+@app.route('/update', methods=['POST', 'GET'])
 @login_required
 def update():
     if request.method == 'POST':
@@ -83,7 +148,7 @@ def update():
         healthinfo.details = details
         db.session.add(healthinfo)
         db.session.commit()
-        return redirect(url_for('userhome',username=current_user.username))
+        return redirect(url_for('userhome', username=current_user.username))
 
 
 @app.route('/adduser', methods=['POST', 'GET'])
@@ -127,10 +192,10 @@ def login():
                     next_page = url_for('userhome', username=current_user.username)
                 return redirect(next_page)
             else:  # 密码错误
-                flash('密码错误')
+                flash(u'密码错误')
                 return redirect(url_for('go'))
         else:
-            flash('账号不存在')
+            flash(u'账号不存在')
             return redirect(url_for('go'))
     return redirect(url_for('go'))
 
