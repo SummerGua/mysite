@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>用户主页</title>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <style>
+        body {
+            text-align: center;
+        }
+
+        #inp {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        input,
+        textarea {
+            width: 300px;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="active"><a href="#">
+                <span class="glyphicon glyphicon-home" aria-hidden="true"></span>用户主页</a></li>
+        <li role="presentation"><a href="{{ url_for('rubbish',username=current_user.username) }}">
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                回收站</a></li>
+        <li role="presentation"><a href="{{ url_for('logout') }}">
+                <span class="glyphicon glyphicon-log-out" aria-hidden="true"></span>
+
+                退出登录</a></li>
+    </ul>
+
+    <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+        <!-- Indicators -->
+        <ol class="carousel-indicators">
+            <li data-target="#carousel-example-generic" data-slide-to="0" class="active"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="1"></li>
+            <li data-target="#carousel-example-generic" data-slide-to="2"></li>
+        </ol>
+
+        <!-- Wrapper for slides -->
+        <div class="carousel-inner" role="listbox">
+            <div class="item active">
+                <img class="item-img" style="width: 90%;height: 400px; margin:0 auto ; "
+                    src="https://sol.panasonic.biz/file.jsp?image/SP-Style_040.png" alt="健康">
+
+            </div>
+            <div class="item">
+                <img class="item-img" style="width: 90%; height: 400px;margin:0 auto ; "
+                    src="http://img1.juimg.com/150323/330819-15032321094085.jpg" alt="健康">
+
+            </div>
+
+        </div>
+
+        <!-- Controls -->
+        <a class="left carousel-control" href="#carousel-example-generic" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="right carousel-control" href="#carousel-example-generic" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+    <div class="page-header">
+        <h1>欢迎回来，{{ current_user.username }}<small>&nbsp;&nbsp;您的就诊记录如下</small></h1>
+    </div>
+    <table style="width: 60%; margin: 0 auto;" class="table table-hover">
+        <tr class='info'>
+            <td>医院</td>
+            <td>日期</td>
+            <td>就诊情况</td>
+            <td>操作 &nbsp;
+                <span style="cursor: pointer;" class='glyphicon glyphicon-plus' data-toggle="modal"
+                    data-target="#myModal">
+                </span></td>
+        </tr>
+        {% for infos in info %}
+        <tr>
+            <td>{{ infos.hospitalname }}&nbsp;&nbsp;</td>
+            <td>{{ infos.date }}</td>
+            <td>{{ infos.details }}
+            <td>
+                    <!-- <a onclick="delOK()" href="/delete_info/31"> -->
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> <a onclick="delOK()" href="{{ url_for("delete_info", info_id=infos.id) }}">&nbsp;删除</a>
+            </td>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Button trigger modal -->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">增加就诊记录</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="/update" method="POST" name="form">
+                        <div>
+                            <label>
+                                医院名：<br>
+                                <input type="text" id="hosname" name="hospitalname" placeholder="医院名">
+                                <span style="color: red" id="span"></span>
+                            </label>
+                        </div>
+                        <div>
+                            <label>
+                                就诊日期：<br>
+                                <input type="date" name="date" id="date" placeholder="日期">
+                            </label>
+                        </div><br>
+                        <div>
+                            <label>
+                                就诊情况：<br>
+                                <textarea id="details" rows="3" style="height: 60px" type="text"
+                                    name="details"></textarea>
+                            </label>
+                        </div>
+                        <input id="inp" type="button" onclick="check()" value="检查输入">
+                        <div id="insert">
+                        </div>
+                    </form>
+                </div>
+                <!-- <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">确定</button>
+                </div> -->
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        $('#myModal').on('shown.bs.modal', function () {
+            $('#myInput').focus()
+        })
+        $(function () {
+            $('[data-toggle="popover"]').popover()
+        })
+        function check() {
+            const hosname = document.getElementById('hosname').value;
+            const details = document.getElementById('details').value;
+            const date = document.getElementById('date').value;
+            const but = document.getElementById('insert');
+            if (hosname.length === 0) {
+                alert("请填写医院名");
+            } if (details.length === 0) {
+                alert("请填写详情");
+            } if (date.length === 0) {
+                alert("请填写日期");
+            } if (date.length !== 0 && details.length !== 0 && hosname !== 0) {
+                alert("可以提交啦");
+                but.innerHTML = "<button " +
+                    "            style='width: 300px;" +
+                    "            background-color: #4CAF50" +
+                    "            color: white;" +
+                    "            padding: 14px 20px;" +
+                    "            margin: 8px 0;" +
+                    "            border: none;" +
+                    "            border-radius: 4px;" +
+                    "            cursor: pointer;' " +
+                    "            value=\"submit\" type=\"submit\">提交</button>";
+
+            }
+        }
+        function delOK() {
+            alert("删除成功，您可以在回收站找到它们");
+        }
+    </script>
+
+
+</body>
+
+</html>
