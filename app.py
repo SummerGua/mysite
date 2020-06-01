@@ -2,12 +2,10 @@ from datetime import datetime
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import login_required, LoginManager, login_user, UserMixin, logout_user, current_user
 from flask_sqlalchemy import SQLAlchemy
-from flask_bootstrap import Bootstrap
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.urls import url_parse
 
 app = Flask(__name__)
-bootstrap = Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -22,6 +20,14 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
     username = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
+
+
+class Weight(db.Model):
+    __tablename__ = 'weight'
+    id = db.Column(db.Integer, autoincrement=True, primary_key=True, nullable=False)
+    user_name = db.Column(db.VARCHAR(20), db.ForeignKey('account.username'))
+    date = db.Column(db.Date, nullable=False)
+    weight = db.Column(db.DECIMAL(5, 2))
 
 
 class Health(db.Model):
@@ -87,7 +93,7 @@ def delete_info(info_id):
         db.session.commit()
         db.session.delete(to_delete_info)
         db.session.commit()
-        return redirect(url_for('userhome',username=current_user.username))
+        return redirect(url_for('userhome', username=current_user.username))
 
 
 @app.route('/delbin<info_id>')
@@ -97,7 +103,18 @@ def delbin(info_id):
     if info:
         db.session.delete(info)
         db.session.commit()
-        return redirect(url_for('rubbish',username=current_user.username))
+        return redirect(url_for('rubbish', username=current_user.username))
+
+
+@app.route('/delweight<wei_id>')
+@login_required
+def delweight(wei_id):
+    wei = Weight.query.get(wei_id)
+    if wei:
+        db.session.delete(wei)
+        db.session.commit()
+        return redirect(url_for('userhome', username=current_user.username))
+    return redirect(url_for('userhome', username=current_user.username))
 
 
 @app.route('/recover/<info_id>')
@@ -131,7 +148,26 @@ def rubbish(username):
 @login_required
 def userhome(username):
     userinfo = Health.query.filter(Health.user_name == username).all()
-    return render_template('userhome.html', info=userinfo)
+    weightinfo = Weight.query.filter(Weight.user_name == username).order_by(Weight.date).all()
+    return render_template('userhome.html', info=userinfo, weight=weightinfo)
+
+
+@app.route('/addweight', methods=['POST', 'GET'])
+@login_required
+def addweight():
+    if request.method == 'POST':
+        date = request.form.get('wdate')
+        weight = request.form.get('weight')
+        if len(date) > 0 and len(weight) > 0:
+            weightinfo = Weight()
+            weightinfo.date = date
+            weightinfo.weight = weight
+            weightinfo.user_name = current_user.username
+            db.session.add(weightinfo)
+            db.session.commit()
+            return redirect(url_for('userhome', username=current_user.username))
+        return redirect(url_for('userhome', username=current_user.username))
+    return redirect(url_for('userhome', username=current_user.username))
 
 
 @app.route('/update', methods=['POST', 'GET'])
@@ -188,7 +224,8 @@ def login():
             if flag:  # 登录成功
                 login_user(u)
                 next_page = request.args.get('next')
-                if not next_page or url_parse(next_page).netloc != '':
+                print(next_page)
+                if not next_page or url_parse(next_page).netloc != '':  # 解析URL不为空
                     next_page = url_for('userhome', username=current_user.username)
                 return redirect(next_page)
             else:  # 密码错误
@@ -200,6 +237,6 @@ def login():
     return redirect(url_for('go'))
 
 
-# db.create_all() # 用数据模型创建数据库时使用
+db.create_all()  # 用数据模型创建数据库时使用
 if __name__ == '__main__':
     app.run(debug=True)

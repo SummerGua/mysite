@@ -3,26 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>回收站</title>
+    <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css"
+        integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <style>
-        body{
+        body {
             text-align: center;
         }
     </style>
 </head>
+
 <body>
-    <h1>{{ current_user.username }}的回收站</h1>
-    <a href="{{ url_for('userhome',username=current_user.username) }}">点我返回主页</a>
-    <br><br>
-    {% for infos in bin_info %}
-    <tr>
-        <td>医院：{{ infos.hospitalname }}</td>
-        <td>日期：{{ infos.date }}</td>
-        <td>
-            就诊情况：{{ infos.details }}
-            <a href="{{ url_for("delbin", info_id=infos.id) }}">彻底删除</a>
-            <a href="{{ url_for("recover", info_id=infos.id) }}">恢复</a>
-        </td>
-    </tr><br>
-    {% endfor %}
+    <div class="jumbotron">
+        <h1>
+            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+            往期病历</h1>
+        <p>欢迎{{ current_user.username }}，支持自由管理病历</p>
+        <p><a class="btn btn-primary btn-lg" href="{{ url_for('userhome',username=current_user.username) }}" role="button">返回主页</a></p>
+    </div>
+    <table style="width: 60%; margin: 0 auto;" class="table table-hover">
+        <tr class='info'>
+            <td>医院</td>
+            <td>日期</td>
+            <td>就诊情况</td>
+            <td>操作</td>
+        </tr>
+        {% for infos in bin_info %}
+        <tr>
+            <td>{{ infos.hospitalname }}&nbsp;&nbsp;</td>
+            <td>{{ infos.date }}</td>
+            <td>{{ infos.details }}</td>
+            <td>
+                <span class="glyphicon glyphicon-trash" aria-hidden="true"></span> <a  href="{{ url_for("delbin", info_id=infos.id) }}">&nbsp;彻底删除</a>
+                &nbsp;&nbsp;
+                <span class="glyphicon glyphicon-share-alt" aria-hidden="true"></span> <a href="{{ url_for("recover", info_id=infos.id) }}">&nbsp;恢复</a>
+
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <!-- <tr>
+        <td>医院：只来一次医院&nbsp;&nbsp;</td>
+        <td>日期：2020-05-07</td>
+        <td>就诊情况：身体良好
+
+            <a href="/delbin30">删除</a>
+            <a href="/recover/30">恢复</a></td>
+    </tr><br> -->
+
 </body>
 </html>
